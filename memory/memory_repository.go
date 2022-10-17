@@ -7,32 +7,32 @@ import (
 	"github.com/cardboardrobots/repository"
 )
 
-type Collection[T any] struct {
+type MemoryRepository[T any] struct {
 	Items             map[string]T
 	currentId         int
 	preInsertCallback func(value T, id string)
 }
 
-func NewCollection[T any](preInsertCallback func(value T, id string)) *Collection[T] {
-	return &Collection[T]{
+func NewMemoryRepository[T any](preInsertCallback func(value T, id string)) *MemoryRepository[T] {
+	return &MemoryRepository[T]{
 		Items:             map[string]T{},
 		preInsertCallback: preInsertCallback,
 	}
 }
 
-var _ repository.Repository[bool] = &Collection[bool]{}
+var _ repository.Repository[bool] = &MemoryRepository[bool]{}
 
-func (c *Collection[T]) GetList(ctx context.Context, query repository.Query) (*repository.ListResult[T], error) {
+func (c *MemoryRepository[T]) GetList(ctx context.Context, query repository.Query) (*repository.ListResult[T], error) {
 	count, _ := c.Count(ctx)
 	result := repository.NewListResult(count, c.Slice())
 	return &result, nil
 }
 
-func (c *Collection[T]) Count(ctx context.Context) (int, error) {
+func (c *MemoryRepository[T]) Count(ctx context.Context) (int, error) {
 	return len(c.Items), nil
 }
 
-func (c *Collection[T]) Slice() []T {
+func (c *MemoryRepository[T]) Slice() []T {
 	data := make([]T, len(c.Items))
 	i := 0
 	for _, value := range c.Items {
@@ -42,7 +42,7 @@ func (c *Collection[T]) Slice() []T {
 	return data
 }
 
-func (c *Collection[T]) GetById(ctx context.Context, id string) (T, error) {
+func (c *MemoryRepository[T]) GetById(ctx context.Context, id string) (T, error) {
 	value, ok := c.Items[id]
 	if !ok {
 		var zero T
@@ -52,7 +52,7 @@ func (c *Collection[T]) GetById(ctx context.Context, id string) (T, error) {
 	return value, nil
 }
 
-func (c *Collection[T]) Create(ctx context.Context, value T) (string, error) {
+func (c *MemoryRepository[T]) Create(ctx context.Context, value T) (string, error) {
 	id := fmt.Sprintf("%v", c.currentId)
 	c.currentId = c.currentId + 1
 	c.preInsertCallback(value, id)
@@ -60,7 +60,7 @@ func (c *Collection[T]) Create(ctx context.Context, value T) (string, error) {
 	return id, nil
 }
 
-func (c *Collection[T]) Update(ctx context.Context, id string, value T) (bool, error) {
+func (c *MemoryRepository[T]) Update(ctx context.Context, id string, value T) (bool, error) {
 	_, ok := c.Items[id]
 	if !ok {
 		return false, repository.NewErrNotFound()
@@ -70,7 +70,7 @@ func (c *Collection[T]) Update(ctx context.Context, id string, value T) (bool, e
 	return true, nil
 }
 
-func (c *Collection[T]) Delete(ctx context.Context, id string) (bool, error) {
+func (c *MemoryRepository[T]) Delete(ctx context.Context, id string) (bool, error) {
 	_, ok := c.Items[id]
 	if !ok {
 		return false, repository.NewErrNotFound()

@@ -7,7 +7,7 @@ import (
 
 func TestGet(t *testing.T) {
 	ctx := context.TODO()
-	c := NewCollection(func(value, id string) {})
+	c := NewMemoryRepository(func(value, id string) {})
 	want := "abcde"
 	id, err := c.Create(ctx, want)
 	if err != nil {
@@ -28,7 +28,7 @@ func TestInsert(t *testing.T) {
 	ctx := context.TODO()
 	valueCallback := ""
 	idCallback := ""
-	c := NewCollection(func(value, id string) {
+	c := NewMemoryRepository(func(value, id string) {
 		valueCallback = value
 		idCallback = id
 	})
@@ -49,7 +49,7 @@ func TestInsert(t *testing.T) {
 
 func TestReplace(t *testing.T) {
 	ctx := context.TODO()
-	c := NewCollection(func(value, id string) {})
+	c := NewMemoryRepository(func(value, id string) {})
 	want := "fghij"
 	id, _ := c.Create(ctx, "abcde")
 
@@ -70,7 +70,7 @@ func TestReplace(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	ctx := context.TODO()
-	c := NewCollection(func(value, id string) {})
+	c := NewMemoryRepository(func(value, id string) {})
 	id, err := c.Create(ctx, "abcde")
 	if err != nil {
 		t.Errorf("%v", err)
