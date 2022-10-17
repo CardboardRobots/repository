@@ -13,24 +13,26 @@ type Collection[T any] struct {
 	preInsertCallback func(value T, id string)
 }
 
-func NewCollection[T any](preInsertCallback func(value T, id string)) repository.Repository[T] {
+func NewCollection[T any](preInsertCallback func(value T, id string)) *Collection[T] {
 	return &Collection[T]{
 		Items:             map[string]T{},
 		preInsertCallback: preInsertCallback,
 	}
 }
 
+var _ repository.Repository[bool] = &Collection[bool]{}
+
 func (c *Collection[T]) GetList(ctx context.Context, query repository.Query) (*repository.ListResult[T], error) {
-	count, _ := c.count(ctx)
-	result := repository.NewListResult(count, c.slice())
+	count, _ := c.Count(ctx)
+	result := repository.NewListResult(count, c.Slice())
 	return &result, nil
 }
 
-func (c *Collection[T]) count(ctx context.Context) (int, error) {
+func (c *Collection[T]) Count(ctx context.Context) (int, error) {
 	return len(c.Items), nil
 }
 
-func (c *Collection[T]) slice() []T {
+func (c *Collection[T]) Slice() []T {
 	data := make([]T, len(c.Items))
 	i := 0
 	for _, value := range c.Items {
