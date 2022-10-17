@@ -22,10 +22,10 @@ func NewMemoryRepository[T any](preInsertCallback func(value T, id string)) *Mem
 
 var _ repository.Repository[bool] = &MemoryRepository[bool]{}
 
-func (c *MemoryRepository[T]) GetList(ctx context.Context, query repository.Query) (*repository.ListResult[T], error) {
+func (c *MemoryRepository[T]) GetList(ctx context.Context, query repository.Query) (repository.ListResult[T], error) {
 	count, _ := c.Count(ctx)
 	result := repository.NewListResult(count, c.Slice())
-	return &result, nil
+	return result, nil
 }
 
 func (c *MemoryRepository[T]) Count(ctx context.Context) (int, error) {

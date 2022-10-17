@@ -17,7 +17,7 @@ type GetById[T any] interface {
 type Query map[string]interface{}
 
 type GetList[T any] interface {
-	GetList(ctx context.Context, query Query) (*ListResult[T], error)
+	GetList(ctx context.Context, query Query) (ListResult[T], error)
 }
 
 type Create[T any] interface {
