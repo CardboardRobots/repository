@@ -1,6 +1,6 @@
 export class RepositoryError extends Error {
   name = this.constructor.name;
-  base = "PersistenceError";
+  base = "RepositoryError";
 
   constructor(message?: string) {
     super(message);
@@ -17,9 +17,10 @@ export class RepositoryError extends Error {
 
 export class NotFoundError extends RepositoryError {
   base = NOT_FOUND;
+
   constructor(message = NOT_FOUND) {
     super(message);
   }
 }
 
-const NOT_FOUND = "Not Found";
+const NOT_FOUND = "not Found";
