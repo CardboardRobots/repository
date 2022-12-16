@@ -2,9 +2,9 @@ package repository
 
 import "context"
 
-type Repository[T any] interface {
+type Repository[T any, Q Query] interface {
 	GetById[T]
-	GetList[T]
+	GetList[T, Q]
 	Create[T]
 	Update[T]
 	Delete
@@ -16,8 +16,18 @@ type GetById[T any] interface {
 
 type Query map[string]interface{}
 
-type GetList[T any] interface {
-	GetList(ctx context.Context, query Query) (ListResult[T], error)
+type Page struct {
+	Limit  int
+	Offset int
+}
+
+type Sort struct {
+	Key   string
+	Order bool
+}
+
+type GetList[T any, Q Query] interface {
+	GetList(ctx context.Context, query Query, page Page, sort ...Sort) (ListResult[T], error)
 }
 
 type Create[T any] interface {
