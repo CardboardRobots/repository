@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"fmt"
 	"sort"
 
 	"github.com/cardboardrobots/repository"
@@ -10,7 +9,6 @@ import (
 
 type MemoryRepository[T any, Q repository.Query] struct {
 	Items             map[string]T
-	currentId         int
 	preInsertCallback func(value T, id string)
 	compare           func(a T, b T, sort ...repository.Sort) bool
 }
@@ -67,8 +65,7 @@ func (c *MemoryRepository[T, Q]) GetById(ctx context.Context, id string) (T, err
 }
 
 func (c *MemoryRepository[T, Q]) Create(ctx context.Context, value T) (string, error) {
-	id := fmt.Sprintf("%v", c.currentId)
-	c.currentId = c.currentId + 1
+	id := Uuid()
 	c.preInsertCallback(value, id)
 	c.Items[id] = value
 	return id, nil

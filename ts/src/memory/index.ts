@@ -1,2 +1,2 @@
 export * from "./MemoryRepository";
-export * from "./MockId";
+export * from "./Uuid";

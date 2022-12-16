@@ -8,7 +8,7 @@ import {
   Sort,
 } from "../Repository";
 
-import { MockId } from "./MockId";
+import { Uuid } from "./Uuid";
 
 export type DataToObjectId<TData extends OptionalId<any>[]> = {
   [Property in keyof TData]: string;
@@ -22,7 +22,7 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
   // TODO: Should we copy the object?
   _createId(document: OptionalId<TDocument>): TDocument {
     if (!document._id) {
-      document._id = MockId();
+      document._id = Uuid();
     }
     return document as any;
   }
@@ -80,7 +80,7 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
   }
 
   async create(data: OptionalId<TDocument>): Promise<string> {
-    const _id = MockId();
+    const _id = Uuid();
     const record = {
       ...data,
       _id,
