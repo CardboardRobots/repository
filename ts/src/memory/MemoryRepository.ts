@@ -1,11 +1,12 @@
-import { NotFoundError } from "../PersistenceError";
+import { NotFoundError } from "../RepositoryError";
 import {
   Document,
-  IDataAccess,
+  Repository,
   ListResult,
   OptionalId,
   Page,
-} from "../IDataAccess";
+  Sort,
+} from "../Repository";
 
 import { MockId } from "./MockId";
 
@@ -14,7 +15,7 @@ export type DataToObjectId<TData extends OptionalId<any>[]> = {
 };
 
 export class MockDataAccess<TDocument extends Document, TFilter extends {}>
-  implements IDataAccess<TDocument, TFilter>
+  implements Repository<TDocument, TFilter>
 {
   collection: Record<string, TDocument> = {};
 
@@ -53,11 +54,11 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
     return Object.values(this.collection).map(({ _id }) => _id);
   }
 
-  async list(
+  async getList(
     filter: TFilter,
     { offset = 0, limit = 0 }: Page = { offset: undefined, limit: undefined },
     // TODO: Fix this
-    sort?: any
+    sort?: Sort<TDocument>
   ): Promise<ListResult<TDocument>> {
     const data = Object.values(this.collection)
       .filter(
@@ -101,7 +102,7 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
     return true;
   }
 
-  async deleteById(_id: string): Promise<void> {
+  async delete(_id: string): Promise<void> {
     const record = this.collection[_id.toString()];
     if (!record) {
       throw new NotFoundError();
