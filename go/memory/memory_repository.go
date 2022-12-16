@@ -3,36 +3,50 @@ package memory
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/cardboardrobots/repository"
 )
 
-type MemoryRepository[T any] struct {
+type MemoryRepository[T any, Q repository.Query] struct {
 	Items             map[string]T
 	currentId         int
 	preInsertCallback func(value T, id string)
+	compare           func(a T, b T, sort ...repository.Sort) bool
 }
 
-func NewMemoryRepository[T any](preInsertCallback func(value T, id string)) *MemoryRepository[T] {
-	return &MemoryRepository[T]{
+func NewMemoryRepository[T any, Q repository.Query](preInsertCallback func(value T, id string), compare func(a T, b T, sort ...repository.Sort) bool) *MemoryRepository[T, Q] {
+	return &MemoryRepository[T, Q]{
 		Items:             map[string]T{},
 		preInsertCallback: preInsertCallback,
+		compare:           compare,
 	}
 }
 
-var _ repository.Repository[bool] = &MemoryRepository[bool]{}
+var _ repository.Repository[bool, repository.Query] = &MemoryRepository[bool, repository.Query]{}
 
-func (c *MemoryRepository[T]) GetList(ctx context.Context, query repository.Query) (repository.ListResult[T], error) {
+func (c *MemoryRepository[T, Q]) GetList(ctx context.Context, query Q, page repository.Page, _sort ...repository.Sort) (repository.ListResult[T], error) {
+	limit := page.Limit
+	if limit == 0 {
+		limit = 10
+	}
 	count, _ := c.Count(ctx)
-	result := repository.NewListResult(count, c.Slice())
+	data := c.Slice()
+	sort.Slice(data, func(i, j int) bool {
+		a := data[i]
+		b := data[j]
+		return c.compare(a, b, _sort...)
+	})
+	data = data[page.Offset : limit-page.Offset]
+	result := repository.NewListResult(count, data)
 	return result, nil
 }
 
-func (c *MemoryRepository[T]) Count(ctx context.Context) (int, error) {
+func (c *MemoryRepository[T, Q]) Count(ctx context.Context) (int, error) {
 	return len(c.Items), nil
 }
 
-func (c *MemoryRepository[T]) Slice() []T {
+func (c *MemoryRepository[T, Q]) Slice() []T {
 	data := make([]T, len(c.Items))
 	i := 0
 	for _, value := range c.Items {
@@ -42,7 +56,7 @@ func (c *MemoryRepository[T]) Slice() []T {
 	return data
 }
 
-func (c *MemoryRepository[T]) GetById(ctx context.Context, id string) (T, error) {
+func (c *MemoryRepository[T, Q]) GetById(ctx context.Context, id string) (T, error) {
 	value, ok := c.Items[id]
 	if !ok {
 		var zero T
@@ -52,7 +66,7 @@ func (c *MemoryRepository[T]) GetById(ctx context.Context, id string) (T, error)
 	return value, nil
 }
 
-func (c *MemoryRepository[T]) Create(ctx context.Context, value T) (string, error) {
+func (c *MemoryRepository[T, Q]) Create(ctx context.Context, value T) (string, error) {
 	id := fmt.Sprintf("%v", c.currentId)
 	c.currentId = c.currentId + 1
 	c.preInsertCallback(value, id)
@@ -60,7 +74,7 @@ func (c *MemoryRepository[T]) Create(ctx context.Context, value T) (string, erro
 	return id, nil
 }
 
-func (c *MemoryRepository[T]) Update(ctx context.Context, id string, value T) (bool, error) {
+func (c *MemoryRepository[T, Q]) Update(ctx context.Context, id string, value T) (bool, error) {
 	_, ok := c.Items[id]
 	if !ok {
 		return false, repository.NewErrNotFound()
@@ -70,7 +84,7 @@ func (c *MemoryRepository[T]) Update(ctx context.Context, id string, value T) (b
 	return true, nil
 }
 
-func (c *MemoryRepository[T]) Delete(ctx context.Context, id string) (bool, error) {
+func (c *MemoryRepository[T, Q]) Delete(ctx context.Context, id string) (bool, error) {
 	_, ok := c.Items[id]
 	if !ok {
 		return false, repository.NewErrNotFound()

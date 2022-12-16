@@ -3,11 +3,15 @@ package memory
 import (
 	"context"
 	"testing"
+
+	"github.com/cardboardrobots/repository"
 )
 
 func TestGet(t *testing.T) {
 	ctx := context.TODO()
-	c := NewMemoryRepository(func(value, id string) {})
+	c := NewMemoryRepository(func(value, id string) {}, func(a string, b string, sort ...repository.Sort) bool {
+		return a < b
+	})
 	want := "abcde"
 	id, err := c.Create(ctx, want)
 	if err != nil {
@@ -31,6 +35,8 @@ func TestInsert(t *testing.T) {
 	c := NewMemoryRepository(func(value, id string) {
 		valueCallback = value
 		idCallback = id
+	}, func(a string, b string, sort ...repository.Sort) bool {
+		return a < b
 	})
 	id0, _ := c.Create(ctx, "abcde")
 	id1, _ := c.Create(ctx, "fghij")
@@ -49,7 +55,9 @@ func TestInsert(t *testing.T) {
 
 func TestReplace(t *testing.T) {
 	ctx := context.TODO()
-	c := NewMemoryRepository(func(value, id string) {})
+	c := NewMemoryRepository(func(value, id string) {}, func(a string, b string, sort ...repository.Sort) bool {
+		return a < b
+	})
 	want := "fghij"
 	id, _ := c.Create(ctx, "abcde")
 
@@ -70,7 +78,9 @@ func TestReplace(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	ctx := context.TODO()
-	c := NewMemoryRepository(func(value, id string) {})
+	c := NewMemoryRepository(func(value, id string) {}, func(a string, b string, sort ...repository.Sort) bool {
+		return a < b
+	})
 	id, err := c.Create(ctx, "abcde")
 	if err != nil {
 		t.Errorf("%v", err)
