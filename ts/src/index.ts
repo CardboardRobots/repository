@@ -1,3 +1,3 @@
-export * from "./IDataAccess";
-export * from "./PersistenceError";
-export * from "./mock";
+export * from "./Repository";
+export * from "./RepositoryError";
+export * from "./memory";

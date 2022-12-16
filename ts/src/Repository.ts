@@ -17,18 +17,27 @@ export interface Page {
   offset?: number;
 }
 
-export interface IDataAccess<TDocument extends Document, TFilter extends {}> {
-  list(
+export type Sort<TDocument extends Document> = {
+  [Property in keyof TDocument]?: 1 | 0 | -1;
+};
+
+export interface Filter extends Record<string, unknown> {}
+
+export interface Repository<
+  TDocument extends Document,
+  TFilter extends Filter
+> {
+  getList(
     filter: TFilter,
-    page: Page,
-    sort?: { [Property in keyof TDocument]?: 1 | -1 }
+    page?: Page,
+    sort?: Sort<TDocument>
   ): Promise<ListResult<TDocument>>;
 
   getById(id: string): Promise<TDocument | null>;
 
   create(data: OptionalId<TDocument>): Promise<string>;
 
-  update(id: string, data: Partial<TDocument>): Promise<boolean>;
+  update(id: string, data: TDocument): Promise<boolean>;
 
-  deleteById(id: string): Promise<void>;
+  delete(id: string): Promise<void>;
 }

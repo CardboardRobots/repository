@@ -1,4 +1,4 @@
-export class PersistenceError extends Error {
+export class RepositoryError extends Error {
   name = this.constructor.name;
   base = "PersistenceError";
 
@@ -15,7 +15,7 @@ export class PersistenceError extends Error {
   }
 }
 
-export class NotFoundError extends PersistenceError {
+export class NotFoundError extends RepositoryError {
   base = NOT_FOUND;
   constructor(message = NOT_FOUND) {
     super(message);
