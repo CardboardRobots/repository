@@ -4,6 +4,9 @@
 			"path": "go"
 		},
 		{
+			"path": "go-memory"
+		},
+		{
 			"path": "ts"
 		},
 		{
@@ -20,6 +23,7 @@
 			"**/.DS_Store": true,
 			"**/Thumbs.db": true,
 			"go": true,
+			"go-memory": true,
 			"ts": true
 		}
 	}

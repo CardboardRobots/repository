@@ -2,7 +2,7 @@ package repository
 
 import "context"
 
-type Repository[T any, Q Query] interface {
+type Repository[T Valid, Q Query] interface {
 	GetById[T]
 	GetList[T, Q]
 	Create[T]
@@ -10,7 +10,7 @@ type Repository[T any, Q Query] interface {
 	Delete
 }
 
-type GetById[T any] interface {
+type GetById[T Valid] interface {
 	GetById(ctx context.Context, id string) (T, error)
 }
 
@@ -26,15 +26,15 @@ type Sort struct {
 	Order bool
 }
 
-type GetList[T any, Q Query] interface {
+type GetList[T Valid, Q Query] interface {
 	GetList(ctx context.Context, query Query, page Page, sort ...Sort) (ListResult[T], error)
 }
 
-type Create[T any] interface {
+type Create[T Valid] interface {
 	Create(ctx context.Context, data T) (string, error)
 }
 
-type Update[T any] interface {
+type Update[T Valid] interface {
 	Update(ctx context.Context, id string, data T) (bool, error)
 }
 

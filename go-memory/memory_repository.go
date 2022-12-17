@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"github.com/cardboardrobots/repository"
+	repository "github.com/cardboardrobots/repository/go"
 )
 
 type MemoryRepository[T any, Q repository.Query] struct {
@@ -21,7 +21,7 @@ func NewMemoryRepository[T any, Q repository.Query](preInsertCallback func(value
 	}
 }
 
-var _ repository.Repository[bool, repository.Query] = &MemoryRepository[bool, repository.Query]{}
+var _ repository.Repository[repository.Valid, repository.Query] = &MemoryRepository[repository.Valid, repository.Query]{}
 
 func (c *MemoryRepository[T, Q]) GetList(ctx context.Context, query Q, page repository.Page, _sort ...repository.Sort) (repository.ListResult[T], error) {
 	limit := page.Limit
