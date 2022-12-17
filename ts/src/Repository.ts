@@ -26,10 +26,10 @@ export type Sort<T> = {
   [Property in keyof T]?: 1 | 0 | -1;
 };
 
-export interface Filter extends Record<string, unknown> {}
+export interface Filter {}
 
-export interface Repository<TModel extends Model> {
-  getList<TFilter extends Filter>(
+export interface Repository<TModel extends Model, TFilter extends Filter> {
+  getList(
     filter: TFilter,
     page?: Page,
     sort?: Sort<TModel>

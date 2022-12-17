@@ -6,12 +6,13 @@ import {
   OptionalId,
   Page,
   Sort,
+  Filter,
 } from "../Repository";
 
 import { DataToObjectId, Uuid } from "./Uuid";
 
-export class MemoryRepository<TModel extends Model>
-  implements Repository<TModel>
+export class MemoryRepository<TModel extends Model, TFilter extends Filter>
+  implements Repository<TModel, TFilter>
 {
   collection: Record<string, TModel> = {};
 
