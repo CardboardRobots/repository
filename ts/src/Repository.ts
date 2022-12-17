@@ -1,15 +1,20 @@
-export interface Document {
+export interface Model {
   _id: string;
-  [key: string]: any;
 }
 
-export type OptionalId<TDocument extends Document> = Omit<TDocument, "_id"> & {
-  _id?: string;
+export interface WithId<T> {
+  _id: T;
+}
+
+export type IdType<T> = T extends WithId<infer TId> ? TId : unknown;
+
+export type OptionalId<TModel extends WithId<any>> = Omit<TModel, "_id"> & {
+  _id?: IdType<TModel>;
 };
 
-export interface ListResult<TDocument extends Document> {
+export interface ListResult<T> {
   count: number;
-  data: TDocument[];
+  data: T[];
 }
 
 export interface Page {
@@ -17,27 +22,24 @@ export interface Page {
   offset?: number;
 }
 
-export type Sort<TDocument extends Document> = {
-  [Property in keyof TDocument]?: 1 | 0 | -1;
+export type Sort<T> = {
+  [Property in keyof T]?: 1 | 0 | -1;
 };
 
 export interface Filter extends Record<string, unknown> {}
 
-export interface Repository<
-  TDocument extends Document,
-  TFilter extends Filter
-> {
-  getList(
+export interface Repository<TModel extends Model> {
+  getList<TFilter extends Filter>(
     filter: TFilter,
     page?: Page,
-    sort?: Sort<TDocument>
-  ): Promise<ListResult<TDocument>>;
+    sort?: Sort<TModel>
+  ): Promise<ListResult<TModel>>;
 
-  getById(id: string): Promise<TDocument | null>;
+  getById(id: string): Promise<TModel | null>;
 
-  create(data: OptionalId<TDocument>): Promise<string>;
+  create(data: OptionalId<TModel>): Promise<string>;
 
-  update(id: string, data: TDocument): Promise<boolean>;
+  update(id: string, data: TModel): Promise<boolean>;
 
   delete(id: string): Promise<void>;
 }

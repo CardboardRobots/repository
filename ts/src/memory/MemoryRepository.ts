@@ -1,6 +1,6 @@
 import { NotFoundError } from "../RepositoryError";
 import {
-  Document,
+  Model,
   Repository,
   ListResult,
   OptionalId,
@@ -8,26 +8,23 @@ import {
   Sort,
 } from "../Repository";
 
-import { Uuid } from "./Uuid";
+import { DataToObjectId, Uuid } from "./Uuid";
 
-export type DataToObjectId<TData extends OptionalId<any>[]> = {
-  [Property in keyof TData]: string;
-};
-
-export class MockDataAccess<TDocument extends Document, TFilter extends {}>
-  implements Repository<TDocument, TFilter>
+export class MemoryRepository<TModel extends Model>
+  implements Repository<TModel>
 {
-  collection: Record<string, TDocument> = {};
+  collection: Record<string, TModel> = {};
 
   // TODO: Should we copy the object?
-  _createId(document: OptionalId<TDocument>): TDocument {
+  _createId(document: OptionalId<TModel>): TModel {
     if (!document._id) {
+      // @ts-expect-error TODO: Fix this type
       document._id = Uuid();
     }
     return document as any;
   }
 
-  _insert<TData extends OptionalId<TDocument>[]>(
+  _insert<TData extends OptionalId<TModel>[]>(
     ...data: TData
   ): DataToObjectId<TData> {
     const records = data.map(this._createId);
@@ -41,7 +38,7 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
     return records.map(({ _id }) => _id) as any;
   }
 
-  _clear(...data: OptionalId<TDocument>[]): string[] {
+  _clear(...data: OptionalId<TModel>[]): string[] {
     this.collection = {};
     if (data.length) {
       return this._insert(...data);
@@ -54,12 +51,12 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
     return Object.values(this.collection).map(({ _id }) => _id);
   }
 
-  async getList(
+  async getList<TFilter extends {}>(
     filter: TFilter,
     { offset = 0, limit = 0 }: Page = { offset: undefined, limit: undefined },
     // TODO: Fix this
-    sort?: Sort<TDocument>
-  ): Promise<ListResult<TDocument>> {
+    sort?: Sort<TModel>
+  ): Promise<ListResult<TModel>> {
     const data = Object.values(this.collection)
       .filter(
         (document) =>
@@ -75,11 +72,11 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
     };
   }
 
-  async getById(_id: string): Promise<TDocument | null> {
+  async getById(_id: string): Promise<TModel | null> {
     return this.collection[_id] ?? null;
   }
 
-  async create(data: OptionalId<TDocument>): Promise<string> {
+  async create(data: OptionalId<TModel>): Promise<string> {
     const _id = Uuid();
     const record = {
       ...data,
@@ -89,7 +86,7 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
     return _id;
   }
 
-  async update(_id: string, data: Partial<TDocument>): Promise<boolean> {
+  async update(_id: string, data: Partial<TModel>): Promise<boolean> {
     const record = this.collection[_id];
     if (!record) {
       throw new NotFoundError();
@@ -109,18 +106,4 @@ export class MockDataAccess<TDocument extends Document, TFilter extends {}>
     }
     delete this.collection[_id.toString()];
   }
-}
-
-export type Constructor<T> = new (...args: any) => T;
-
-export function createMockDataAccess<
-  TDataAccess extends MockDataAccess<any, any>,
-  TData extends OptionalId<any>[]
->(
-  constructor: Constructor<TDataAccess>,
-  ...data: TData
-): [TDataAccess, ...DataToObjectId<TData>] {
-  const dataAccess = new constructor();
-  const ids = dataAccess._insert(...data);
-  return [dataAccess, ...ids] as any;
 }

@@ -13,6 +13,9 @@
 			"path": "ts"
 		},
 		{
+			"path": "ts-mongorepo"
+		},
+		{
 			"path": ".",
 			"name": "root"
 		}
@@ -28,7 +31,8 @@
 			"go": true,
 			"go-memory": true,
 			"go-mongorepo": true,
-			"ts": true
+			"ts": true,
+			"ts-mongorepo": true
 		}
 	}
 }
