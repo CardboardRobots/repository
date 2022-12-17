@@ -2,7 +2,6 @@
   "name": "@cardboardrobots/mongorepo",
   "version": "0.0.0",
   "description": "",
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
