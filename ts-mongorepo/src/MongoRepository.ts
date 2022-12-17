@@ -18,7 +18,7 @@ import {
 
 export interface Model {}
 
-export abstract class MongoRepository<TModel extends Model> {
+export class MongoRepository<TModel extends Model> {
   protected db: Db;
   collection: Collection<TModel>;
 

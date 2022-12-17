@@ -27,7 +27,8 @@
     ]
   },
   "dependencies": {
+    "@cardboardrobots/repository": "../ts",
     "mongodb": "^4.12.1",
-    "@cardboardrobots/repository": "../ts"
+    "yup": "^0.32.11"
   }
 }
