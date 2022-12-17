@@ -1,9 +1,7 @@
-import { OptionalId } from "../Repository";
-
 export function Uuid() {
   return crypto.randomUUID();
 }
 
-export type DataToObjectId<TData extends OptionalId<any>[]> = {
+export type DataToObjectId<TData extends any[]> = {
   [Property in keyof TData]: string;
 };

@@ -1,16 +1,14 @@
-export interface Model {
-  _id: string;
-}
+export interface Model {}
 
-export interface WithId<T> {
-  _id: T;
-}
-
-export type IdType<T> = T extends WithId<infer TId> ? TId : unknown;
-
-export type OptionalId<TModel extends WithId<any>> = Omit<TModel, "_id"> & {
-  _id?: IdType<TModel>;
+export type WithId<TModel extends Model, TId> = TModel & {
+  _id: TId;
 };
+
+export type StringId<TModel extends Model> = TModel & {
+  _id: string;
+};
+
+export type IdType<T> = T extends WithId<any, infer TId> ? TId : unknown;
 
 export interface ListResult<T> {
   count: number;
@@ -33,13 +31,13 @@ export interface Repository<TModel extends Model, TFilter extends Filter> {
     filter: TFilter,
     page?: Page,
     sort?: Sort<TModel>
-  ): Promise<ListResult<TModel>>;
+  ): Promise<ListResult<StringId<TModel>>>;
 
-  getById(id: string): Promise<TModel | null>;
+  getById(id: string): Promise<StringId<TModel> | null>;
 
-  create(data: OptionalId<TModel>): Promise<string>;
+  create(data: TModel): Promise<string>;
 
-  update(id: string, data: TModel): Promise<boolean>;
+  update(id: string, data: StringId<TModel>): Promise<boolean>;
 
   delete(id: string): Promise<void>;
 }

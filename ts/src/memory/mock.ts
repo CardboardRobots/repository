@@ -1,4 +1,3 @@
-import { OptionalId } from "../Repository";
 import { MemoryRepository } from "./MemoryRepository";
 import { DataToObjectId } from "./Uuid";
 
@@ -6,7 +5,7 @@ export type Constructor<T> = new (...args: any) => T;
 
 export function createMockDataAccess<
   TDataAccess extends MemoryRepository<any, any>,
-  TData extends OptionalId<any>[]
+  TData extends any[]
 >(
   constructor: Constructor<TDataAccess>,
   ...data: TData

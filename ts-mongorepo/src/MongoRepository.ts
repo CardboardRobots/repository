@@ -31,7 +31,7 @@ export class MongoRepository<TModel extends Model> {
     this.collection = this.db.collection<TModel>(collectionName);
   }
 
-  async list<TFilter extends Filter<TModel>>(
+  async getList<TFilter extends Filter<TModel>>(
     filter: TFilter,
     { limit = 0, offset = 0 }: Page = { limit: 0, offset: 0 },
     sort?: Sort<TModel>

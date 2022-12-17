@@ -3,10 +3,10 @@ import {
   Model,
   Repository,
   ListResult,
-  OptionalId,
   Page,
   Sort,
   Filter,
+  WithId,
 } from "../Repository";
 
 import { DataToObjectId, Uuid } from "./Uuid";
@@ -14,10 +14,11 @@ import { DataToObjectId, Uuid } from "./Uuid";
 export class MemoryRepository<TModel extends Model, TFilter extends Filter>
   implements Repository<TModel, TFilter>
 {
-  collection: Record<string, TModel> = {};
+  collection: Record<string, WithId<TModel, string>> = {};
 
   // TODO: Should we copy the object?
-  _createId(document: OptionalId<TModel>): TModel {
+  _createId(document: TModel): WithId<TModel, string> {
+    // @ts-expect-error TODO: Fix this type
     if (!document._id) {
       // @ts-expect-error TODO: Fix this type
       document._id = Uuid();
@@ -25,9 +26,7 @@ export class MemoryRepository<TModel extends Model, TFilter extends Filter>
     return document as any;
   }
 
-  _insert<TData extends OptionalId<TModel>[]>(
-    ...data: TData
-  ): DataToObjectId<TData> {
+  _insert<TData extends TModel[]>(...data: TData): DataToObjectId<TData> {
     const records = data.map(this._createId);
     this.collection = records.reduce(
       (collection, document) => ({
@@ -39,7 +38,7 @@ export class MemoryRepository<TModel extends Model, TFilter extends Filter>
     return records.map(({ _id }) => _id) as any;
   }
 
-  _clear(...data: OptionalId<TModel>[]): string[] {
+  _clear(...data: TModel[]): string[] {
     this.collection = {};
     if (data.length) {
       return this._insert(...data);
@@ -57,7 +56,7 @@ export class MemoryRepository<TModel extends Model, TFilter extends Filter>
     { offset = 0, limit = 0 }: Page = { offset: undefined, limit: undefined },
     // TODO: Fix this
     sort?: Sort<TModel>
-  ): Promise<ListResult<TModel>> {
+  ): Promise<ListResult<WithId<TModel, string>>> {
     const data = Object.values(this.collection)
       .filter(
         (document) =>
@@ -73,11 +72,11 @@ export class MemoryRepository<TModel extends Model, TFilter extends Filter>
     };
   }
 
-  async getById(_id: string): Promise<TModel | null> {
+  async getById(_id: string): Promise<WithId<TModel, string> | null> {
     return this.collection[_id] ?? null;
   }
 
-  async create(data: OptionalId<TModel>): Promise<string> {
+  async create(data: TModel): Promise<string> {
     const _id = Uuid();
     const record = {
       ...data,
