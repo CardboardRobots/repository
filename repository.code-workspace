@@ -7,6 +7,9 @@
 			"path": "go-memory"
 		},
 		{
+			"path": "go-mongorepo"
+		},
+		{
 			"path": "ts"
 		},
 		{
@@ -24,6 +27,7 @@
 			"**/Thumbs.db": true,
 			"go": true,
 			"go-memory": true,
+			"go-mongorepo": true,
 			"ts": true
 		}
 	}
