@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cardboardrobots/repository"
+	repository "github.com/cardboardrobots/repository/go"
 )
 
 func TestGet(t *testing.T) {
