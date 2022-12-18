@@ -62,7 +62,7 @@ export abstract class MongoRepository<
     return _id.toHexString();
   }
 
-  update(id: string, data: StringId<TModel>): Promise<boolean> {
+  update(id: string, data: TModel): Promise<boolean> {
     const _id = newObjectId(id);
     const model = this.fromModel(data);
     return this.repository.update(_id, model);
