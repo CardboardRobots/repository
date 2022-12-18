@@ -78,7 +78,7 @@ export class MongoData<TDocument extends Document> {
 
   async update(_id: ObjectId, data: TDocument): Promise<boolean> {
     // TODO: Fix this type
-    const result = await this.collection.updateOne({ _id: _id as any }, data);
+    const result = await this.collection.replaceOne({ _id: _id as any }, data);
     if (result.acknowledged) {
       if (!result.matchedCount) {
         throw new NotFoundError();
