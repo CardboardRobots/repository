@@ -1,106 +1,75 @@
-import { ObjectId } from 'bson';
-import {
-  Collection,
-  Db,
-  Filter,
-  MatchKeysAndValues,
-  MongoClient,
-  OptionalUnlessRequiredId,
-  WithId,
-} from 'mongodb';
+import { MongoClient, WithId } from 'mongodb';
 
 import {
-  ListResult,
-  NotFoundError,
   Page,
   Sort,
+  ListResult,
+  StringId,
+  Model,
+  Filter,
+  Repository,
 } from '@cardboardrobots/repository';
+import { Document, MongoData } from './MongoData';
+import { newObjectId } from './ObjectId';
 
-export interface Model {}
-
-export class MongoRepository<TModel extends Model> {
-  protected db: Db;
-  collection: Collection<TModel>;
+export abstract class MongoRepository<
+  TModel extends Model,
+  TDocument extends Document,
+  TFilter extends Filter
+> implements Repository<TModel, TFilter>
+{
+  repository: MongoData<TDocument>;
+  abstract toModel(document: WithId<TDocument>): StringId<TModel>;
+  abstract fromModel(model: TModel): TDocument;
+  abstract sortMap(sort: Sort<TModel>): Sort<TDocument>;
 
   constructor(
     collectionName: string,
     dbName: string,
     mongoClient: MongoClient
   ) {
-    this.db = mongoClient.db(dbName);
-    this.collection = this.db.collection<TModel>(collectionName);
+    this.repository = new MongoData(collectionName, dbName, mongoClient);
   }
 
-  async getList<TFilter extends Filter<TModel>>(
+  async getList(
     filter: TFilter,
-    { limit = 0, offset = 0 }: Page = { limit: 0, offset: 0 },
+    page?: Page,
     sort?: Sort<TModel>
-  ): Promise<ListResult<WithId<TModel>>> {
-    const query: Record<string, any> = {};
-    Object.entries(filter).reduce((query, [key, value]) => {
-      if (value !== undefined) {
-        query[key] = value;
-      }
-      return query;
-    }, query);
-    const [count, data] = await Promise.all([
-      // @ts-expect-error TODO: Fix this
-      this.collection.find({ ...query }).count(),
-      this.collection
-        // @ts-expect-error TODO: Fix this
-        .find({ ...query })
-        .skip(offset)
-        .limit(limit)
-        .collation({ locale: 'en' })
-        .sort(sort as any)
-        .toArray(),
-    ]);
+  ): Promise<ListResult<StringId<TModel>>> {
+    const { count, data } = await this.repository.getList(
+      filter,
+      page,
+      sort ? this.sortMap(sort) : undefined
+    );
     return {
       count,
-      data,
+      data: data.map(this.toModel),
     };
   }
 
-  async getById(_id: ObjectId): Promise<WithId<TModel> | null> {
-    const result = await this.collection.findOne({ _id: _id as any });
-    return result;
+  async getById(id: string): Promise<StringId<TModel> | null> {
+    const _id = newObjectId(id);
+    const result = await this.repository.getById(_id);
+    if (!result) {
+      return null;
+    }
+    return this.toModel(result);
   }
 
-  async create(data: OptionalUnlessRequiredId<TModel>): Promise<ObjectId> {
-    const result = await this.collection.insertOne(data);
-    if (result.acknowledged) {
-      return result.insertedId;
-    } else {
-      throw new Error('not created');
-    }
+  async create(data: TModel): Promise<string> {
+    const model = this.fromModel(data);
+    const _id = await this.repository.create(model);
+    return _id.toHexString();
   }
 
-  async update(
-    _id: ObjectId,
-    data: MatchKeysAndValues<TModel>
-  ): Promise<boolean> {
-    const result = await this.collection.updateOne(
-      { _id: _id as any },
-      { $set: data }
-    );
-    if (result.acknowledged) {
-      if (!result.matchedCount) {
-        throw new NotFoundError();
-      }
-      return result.modifiedCount + result.upsertedCount > 0;
-    } else {
-      throw new Error('not updated');
-    }
+  update(id: string, data: StringId<TModel>): Promise<boolean> {
+    const _id = newObjectId(id);
+    const model = this.fromModel(data);
+    return this.repository.update(_id, model);
   }
 
-  async deleteById(_id: ObjectId): Promise<void> {
-    const result = await this.collection.deleteOne({ _id: _id as any });
-    if (result.acknowledged) {
-      if (!result.deletedCount) {
-        throw new NotFoundError();
-      }
-    } else {
-      throw new Error('not deleted');
-    }
+  delete(id: string): Promise<void> {
+    const _id = newObjectId(id);
+    return this.repository.deleteById(_id);
   }
 }

@@ -37,7 +37,7 @@ export interface Repository<TModel extends Model, TFilter extends Filter> {
 
   create(data: TModel): Promise<string>;
 
-  update(id: string, data: StringId<TModel>): Promise<boolean>;
+  update(id: string, data: TModel): Promise<boolean>;
 
   delete(id: string): Promise<void>;
 }
