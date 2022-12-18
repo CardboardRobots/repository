@@ -30,7 +30,7 @@
     ]
   },
   "dependencies": {
-    "@cardboardrobots/repository": "../ts",
+    "@cardboardrobots/repository": "0.0.0",
     "mongodb": "^4.12.1",
     "yup": "^0.32.11"
   }
