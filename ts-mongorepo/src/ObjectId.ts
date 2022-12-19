@@ -3,6 +3,7 @@ import { MixedSchema } from 'yup';
 
 export function newObjectId(id: string): ObjectId;
 export function newObjectId(id?: undefined): undefined;
+export function newObjectId(id?: string | undefined): ObjectId |undefined;
 export function newObjectId(id?: string): ObjectId | undefined {
   if (id) {
     return new ObjectId(id);
