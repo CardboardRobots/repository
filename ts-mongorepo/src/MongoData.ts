@@ -33,7 +33,7 @@ export class MongoData<TDocument extends Document> {
 
   async getList<TFilter extends Filter<TDocument>>(
     filter: TFilter,
-    { limit = 0, offset = 0 }: Page = { limit: 0, offset: 0 },
+    { limit = 10, offset = 0 }: Page = {},
     sort?: Sort<TDocument>
   ): Promise<ListResult<WithId<TDocument>>> {
     const query: Record<string, any> = {};
