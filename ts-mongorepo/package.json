@@ -1,6 +1,6 @@
 {
   "name": "@cardboardrobots/mongorepo",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
