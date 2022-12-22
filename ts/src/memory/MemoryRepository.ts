@@ -60,9 +60,11 @@ export class MemoryRepository<TModel extends Model, TFilter extends Filter>
     const data = Object.values(this.collection)
       .filter(
         (document) =>
-          !Object.entries(filter).find(
-            ([key, value]) => document[key as keyof typeof document] !== value
-          )
+          !Object.entries(filter)
+            .filter(([_key, value]) => value !== undefined)
+            .find(
+              ([key, value]) => document[key as keyof typeof document] !== value
+            )
       )
       .slice(offset, offset + limit);
     const count = data.length;
