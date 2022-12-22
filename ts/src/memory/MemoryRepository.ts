@@ -53,7 +53,7 @@ export class MemoryRepository<TModel extends Model, TFilter extends Filter>
 
   async getList(
     filter: TFilter,
-    { offset = 0, limit = 0 }: Page = { offset: undefined, limit: undefined },
+    { offset = 0, limit = 10 }: Page = { offset: undefined, limit: undefined },
     // TODO: Fix this
     sort?: Sort<TModel>
   ): Promise<ListResult<StringId<TModel>>> {
