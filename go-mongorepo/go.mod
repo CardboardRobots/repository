@@ -1,4 +1,4 @@
-module github.com/cardboardrobots/repository/go-mongodata
+module github.com/cardboardrobots/repository/go-mongorepo
 
 go 1.19
 
