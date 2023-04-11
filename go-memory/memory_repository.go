@@ -71,6 +71,11 @@ func (c *MemoryRepository[T, Q]) Create(ctx context.Context, value T) (string, e
 	return id, nil
 }
 
+func (c *MemoryRepository[T, Q]) Replace(ctx context.Context, id string, value T) error {
+	c.Items[id] = value
+	return nil
+}
+
 func (c *MemoryRepository[T, Q]) Update(ctx context.Context, id string, value T) (bool, error) {
 	_, ok := c.Items[id]
 	if !ok {

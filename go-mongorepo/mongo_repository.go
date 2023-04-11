@@ -93,13 +93,33 @@ func (c *MongoRepository[T]) Create(
 	ctx context.Context,
 	data T,
 ) (string, error) {
-	error := data.Valid()
-	if error != nil {
-		return "", error
+	err := data.Valid()
+	if err != nil {
+		return "", err
 	}
 
-	result, error := c.Collection.InsertOne(ctx, data)
-	return result.InsertedID.(primitive.ObjectID).Hex(), error
+	result, err := c.Collection.InsertOne(ctx, data)
+	if err != nil {
+		return "", err
+	}
+
+	return result.InsertedID.(primitive.ObjectID).Hex(), err
+}
+
+func (c *MongoRepository[T]) Replace(
+	ctx context.Context,
+	id string,
+	data T,
+) error {
+	err := data.Valid()
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Collection.ReplaceOne(ctx, bson.M{
+		"_id": id,
+	}, data)
+	return err
 }
 
 func (c *MongoRepository[T]) Update(

@@ -6,6 +6,7 @@ type Repository[T Valid, Q Query] interface {
 	GetById[T]
 	GetList[T, Q]
 	Create[T]
+	Replace[T]
 	Update[T]
 	Delete
 }
@@ -32,6 +33,10 @@ type GetList[T Valid, Q Query] interface {
 
 type Create[T Valid] interface {
 	Create(ctx context.Context, data T) (string, error)
+}
+
+type Replace[T Valid] interface {
+	Replace(ctx context.Context, id string, data T) error
 }
 
 type Update[T Valid] interface {
